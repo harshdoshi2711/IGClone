@@ -60,7 +60,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
         )
 
 
-@router.get("/test", tags=["Auth"])
-def test_auth_route():
-    print("LOGIN ROUTE HIT")
-    return {"message": "Auth route works!"}
+# @router.get("/test", tags=["Auth"])
+# def test_auth_route():
+#     print("LOGIN ROUTE HIT")
+#     return {"message": "Auth route works!"}

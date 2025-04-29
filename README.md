@@ -35,7 +35,6 @@ Environment Variables: python-dotenv
 
 Others: Pydantic, Uvicorn, Python 3.13
 
-
 Project Structure
 
 IGClone/

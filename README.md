@@ -37,7 +37,10 @@ Others: Pydantic, Uvicorn, Python 3.13
 
 Project Structure
 
-IGClone/\n├── app/\n│   ├──core/\n│   │   ├── auth_utils.py
+IGClone/
+├── app/
+│   ├──core/
+│   │   ├── auth_utils.py
 │   │   ├── config.py
 │   │   └── dependencies.py
 │   ├──db/

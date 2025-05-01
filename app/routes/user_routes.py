@@ -5,7 +5,7 @@ from app.db.database import get_db
 from app.db.models import User, Follow
 from app.schemas.user_schemas import UserCreate, UserResponse
 from app.core.dependencies import get_current_user
-
+from typing import List
 
 router = APIRouter()
 
@@ -111,3 +111,28 @@ def unfollow_user(
     db.commit()
     return {"detail": "Unfollowed user successfully."}
 
+
+@router.get("/{user_id}/following", response_model = List[UserResponse])
+def get_following(
+        user_id: int,
+        db: Session = Depends(get_db)
+):
+    following = (db.query(User)
+                 .join(Follow, Follow.following_id == User.id)
+                 .filter(Follow.follower_id == user_id)
+                 .all()
+)
+    return following
+
+
+@router.get("/{user_id}/followers", response_model = List[UserResponse])
+def get_followers(
+        user_id: int,
+        db: Session = Depends(get_db)
+):
+    followers = (db.query(User)
+                 .join(Follow, Follow.follower_id == User.id)
+                 .filter(Follow.following_id == user_id)
+                 .all()
+)
+    return followers

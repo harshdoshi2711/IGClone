@@ -2,9 +2,10 @@ print("🚀 Starting IGClone FastAPI...")
 
 # app/main.py
 from fastapi import FastAPI
+from app.routes.auth_routes import router as auth_router
 from app.routes.user_routes import router as user_router
 from app.routes.post_routes import router as post_router
-from app.routes.auth_routes import router as auth_router
+from app.routes.comment_routes import router as comment_router
 
 app = FastAPI()
 
@@ -12,6 +13,7 @@ app = FastAPI()
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 app.include_router(user_router, prefix="/users", tags=["Users"])
 app.include_router(post_router, prefix="/posts", tags=["Posts"])
+app.include_router(comment_router)
 
 # Health check route
 @app.get("/")

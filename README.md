@@ -35,7 +35,6 @@ Environment Variables: python-dotenv
 
 Others: Pydantic, Uvicorn, Python 3.13
 
-
 Project Structure
 
 IGClone/
@@ -71,8 +70,7 @@ cd IGClone
 2. Create a virtual environment and activate it:
 
 python -m venv venv
-source venv/bin/activate 
-# On Windows: venv\Scripts\activate
+source venv/bin/activate # On Windows: venv\Scripts\activate
 
 
 3. Install dependencies:

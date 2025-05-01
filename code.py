@@ -212,7 +212,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.models import User
-from app.schemas.user_schemas import UserCreate, UserRead
+from app.schemas.user_schemas import UserCreate, UserResponse
 from app.schemas.auth_schemas import LoginRequest, TokenResponse
 from app.core.auth_utils import hash_password, verify_password, create_access_token
 from app.core.dependencies import get_current_user
@@ -221,7 +221,7 @@ from app.core.dependencies import get_current_user
 router = APIRouter()
 
 
-@router.post("/signup", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
     # Check if user already exists
@@ -280,13 +280,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.models import User
-from app.schemas.user_schemas import UserCreate, UserRead
+from app.schemas.user_schemas import UserCreate, UserResponse
 from app.core.dependencies import get_current_user
 
 
 router = APIRouter()
 
-@router.post("/", response_model=UserRead)
+@router.post("/", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = User(name=user.name, email=user.email)
     db.add(db_user)
@@ -294,12 +294,12 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
-@router.get("/me", response_model=UserRead)
+@router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     print("📡 /users/me was hit")
     return current_user
 
-@router.get("/{user_id}", response_model=UserRead)
+@router.get("/{user_id}", response_model=UserResponse)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     print("users/USER_ID was hit")
     db_user = db.query(User).filter(User.id == user_id).first()
@@ -307,7 +307,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
-@router.get("/", response_model=list[UserRead])
+@router.get("/", response_model=list[UserResponse])
 def get_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return db.query(User).offset(skip).limit(limit).all()
 
@@ -338,12 +338,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.models import User, Post
-from app.schemas.post_schemas import PostCreate, PostRead
+from app.schemas.post_schemas import PostCreate, PostResponse
 from app.core.dependencies import get_current_user
 
 router = APIRouter()
 
-@router.post("/", response_model=PostRead)
+@router.post("/", response_model=PostResponse)
 def create_post(
         post: PostCreate,
         db: Session = Depends(get_db),
@@ -359,14 +359,14 @@ def create_post(
     db.refresh(db_post)
     return db_post
 
-@router.get("/{post_id}", response_model=PostRead)
+@router.get("/{post_id}", response_model=PostResponse)
 def read_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-@router.get("/", response_model=list[PostRead])
+@router.get("/", response_model=list[PostResponse])
 def get_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return db.query(Post).offset(skip).limit(limit).all()
 

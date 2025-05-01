@@ -2,13 +2,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.db.models import User, Post
-from app.schemas.post_schemas import PostCreate, PostRead
+from app.db.models import User, Post, Follow
+from app.schemas.post_schemas import PostCreate, PostResponse
 from app.core.dependencies import get_current_user
 
 router = APIRouter()
 
-@router.post("/", response_model=PostRead)
+@router.post("/", response_model=PostResponse)
 def create_post(
         post: PostCreate,
         db: Session = Depends(get_db),
@@ -24,16 +24,32 @@ def create_post(
     db.refresh(db_post)
     return db_post
 
-@router.get("/{post_id}", response_model=PostRead)
+@router.get("/{post_id}", response_model=PostResponse)
 def read_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-@router.get("/", response_model=list[PostRead])
-def get_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return db.query(Post).offset(skip).limit(limit).all()
+@router.get("/", response_model=list[PostResponse])
+def get_followed_posts(
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+        skip: int = 0,
+        limit: int = 10
+):
+    followed_user_ids = (
+        db.query(Follow.following_id)
+        .filter(Follow.follower_id == current_user.id)
+        .all())
+    posts = (db.query(Post)
+             .filter(Post.user_id.in_(followed_user_ids))
+             .order_by(Post.created_at.desc())
+             .offset(skip)
+             .limit(limit)
+             .all()
+             )
+    return posts
 
 # PUT Route to update post content
 @router.put("/{post_id}")

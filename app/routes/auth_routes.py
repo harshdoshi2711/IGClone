@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.models import User
-from app.schemas.user_schemas import UserCreate, UserRead
+from app.schemas.user_schemas import UserCreate, UserResponse
 from app.schemas.auth_schemas import LoginRequest, TokenResponse
 from app.core.auth_utils import hash_password, verify_password, create_access_token
 from app.core.dependencies import get_current_user
@@ -12,7 +12,7 @@ from app.core.dependencies import get_current_user
 router = APIRouter()
 
 
-@router.post("/signup", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
     # Check if user already exists

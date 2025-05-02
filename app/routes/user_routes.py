@@ -1,9 +1,10 @@
 # app/routes/user_routes.py
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.db.models import User, Follow
-from app.schemas.user_schemas import UserCreate, UserResponse
+from app.db.models import User, Follow, Post
+from app.schemas.user_schemas import UserCreate, UserResponse, UserProfile, UserWithPosts
 from app.core.dependencies import get_current_user
 from typing import List
 
@@ -25,14 +26,56 @@ def get_me(current_user: User = Depends(get_current_user)):
     print("📡 /users/me was hit")
     return current_user
 
-@router.get("/{user_id}", response_model=UserResponse)
-def read_user(user_id: int, db: Session = Depends(get_db)):
-    print("users/USER_ID was hit")
-    db_user = db.query(User).filter(User.id == user_id).first()
-    if db_user is None:
+@router.get("/{user_id}/profile", response_model=UserProfile)
+def get_user_profile(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return db_user
 
+    post_count = db.query(func.count(Post.id)).filter(Post.user_id == user_id).scalar()
+    followers_count = db.query(func.count(Follow.id)).filter(Follow.following_id == user_id).scalar()
+    following_count = db.query(func.count(Follow.id)).filter(Follow.follower_id == user_id).scalar()
+
+    return UserProfile(
+        id=user.id,
+        name=user.name,
+        post_count=post_count,
+        followers_count=followers_count,
+        following_count=following_count
+    )
+
+@router.get("/search", response_model=UserWithPosts)
+def search_user_by_name(
+    search: str = Query(..., min_length=1),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    user = db.query(User).filter(User.name.ilike(f"%{search}%")).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.id != current_user.id:
+        is_following = (db.query(Follow)
+                        .filter(Follow.follower_id == current_user.id, Follow.following_id == user.id)
+                        .first()
+                        )
+        if not is_following:
+            raise HTTPException(status_code=403, detail="You are not allowed to view this user's profile")
+
+    post_count = db.query(func.count(Post.id)).filter(Post.user_id == user.id).scalar()
+    followers_count = db.query(func.count(Follow.id)).filter(Follow.following_id == user.id).scalar()
+    following_count = db.query(func.count(Follow.id)).filter(Follow.follower_id == user.id).scalar()
+    user_posts = db.query(Post).filter(Post.user_id == user.id).order_by(Post.created_at.desc()).all()
+
+    return {
+        "id": user.id,
+        "name": user.name,
+        "post_count": post_count,
+        "followers_count": followers_count,
+        "following_count": following_count,
+        "posts": user_posts
+    }
 
 @router.put("/{user_id}", response_model=UserResponse)
 def update_user(

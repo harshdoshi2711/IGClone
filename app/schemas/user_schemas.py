@@ -1,6 +1,7 @@
 # app/schemas/user_schemas.py
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import List
+from app.schemas.post_schemas import PostResponse
 
 class UserBase(BaseModel):
     name: str
@@ -24,3 +25,16 @@ class FollowRead(FollowBase):
 
     class Config:
         from_attributes = True
+
+class UserProfile(BaseModel):
+    id: int
+    name: str
+    post_count: int
+    followers_count: int
+    following_count: int
+
+    class Config:
+        from_attributes = True
+
+class UserWithPosts(UserProfile):
+    posts: List[PostResponse]

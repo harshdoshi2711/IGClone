@@ -6,6 +6,7 @@ from app.routes.auth_routes import router as auth_router
 from app.routes.user_routes import router as user_router
 from app.routes.post_routes import router as post_router
 from app.routes.comment_routes import router as comment_router
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -19,3 +20,5 @@ app.include_router(comment_router)
 @app.get("/")
 def read_root():
     return {"message": "Welcome to IGClone API"}
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")

@@ -81,9 +81,10 @@ def follow_user(
     if user_id == current_user.id:
         raise HTTPException(status_code=400, detail="You cannot follow yourself.")
 
-    follow_exists = db.query(Follow).filter_by(
-        follower_id=current_user.id, following_id=user_id
-    ).first()
+    follow_exists = (db.query(Follow)
+                     .filter_by(follower_id=current_user.id, following_id=user_id)
+                     .first()
+                     )
 
     if follow_exists:
         raise HTTPException(status_code=400, detail="You are already following this user.")
@@ -100,9 +101,10 @@ def unfollow_user(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)):
 
-    follow = db.query(Follow).filter_by(
-        follower_id=current_user.id, following_id=user_id
-    ).first()
+    follow = (db.query(Follow)
+              .filter_by(follower_id=current_user.id, following_id=user_id)
+              .first()
+              )
 
     if not follow:
         raise HTTPException(status_code=404, detail="Follow relationship not found.")
@@ -121,7 +123,7 @@ def get_following(
                  .join(Follow, Follow.following_id == User.id)
                  .filter(Follow.follower_id == user_id)
                  .all()
-)
+                 )
     return following
 
 
@@ -134,5 +136,5 @@ def get_followers(
                  .join(Follow, Follow.follower_id == User.id)
                  .filter(Follow.following_id == user_id)
                  .all()
-)
+                 )
     return followers

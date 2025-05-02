@@ -5,7 +5,7 @@ from datetime import datetime
 
 class PostBase(BaseModel):
     content: str
-    image_url: str = None # Optional[HttpUrl] = None
+    # image_url: str = None # Optional[HttpUrl] = None
 
 class PostCreate(PostBase):
     pass
@@ -13,9 +13,10 @@ class PostCreate(PostBase):
 class PostResponse(PostBase):
     id: int
     user_id: int
+    image_url: Optional[str] = None
     created_at: datetime
     updated_at: datetime
-    likes_count: int
+    likes_count: Optional[int] = 0
 
     class Config:
         from_attributes = True

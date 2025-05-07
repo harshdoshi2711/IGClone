@@ -1,6 +1,6 @@
-print("🚀 Starting IGClone FastAPI...")
 
 # app/main.py
+print("🚀 Starting IGClone FastAPI...")
 from fastapi import FastAPI
 from app.routes.auth_routes import router as auth_router
 from app.routes.user_routes import router as user_router

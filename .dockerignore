@@ -1,0 +1,26 @@
+# Ignore actual secrets
+.env
+
+# DO NOT ignore example template!
+# .env.example will be tracked by Git
+
+# Bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# App-specific
+uploads/
+*.db
+*.log
+
+# IDE/editor files
+.vscode/
+.idea/
+.DS_Store
+
+# SQLite backup (just in case)
+*.sqlite3
+
+igclone_dump.sql
